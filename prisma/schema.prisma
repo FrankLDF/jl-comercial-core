@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Cargo {
+  id Int @id @default(autoincrement())
+
+  nombre String
+  descripcion String?
+
+  estado String  @default("A")
+  fechaisercion DateTime @default(now())
+  fechaActualizacion DateTime?  @updatedAt
+  usuarioInsercion String
+  usuarioActualizacion String?
+}
+
+model Empleado {
+  id Int @id @default(autoincrement())
+
+  nombres String
+  apellidos String
+  email String 
+
+  estado String  @default("A")
+  fechaisercion DateTime @default(now())
+  fechaActualizacion DateTime?  @updatedAt
+  usuarioInsercion String
+  usuarioActualizacion String?
+}
+
+
