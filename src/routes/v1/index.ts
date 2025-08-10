@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { clientRouter } from '../../modules/client/routes/client.rout.js'
-export const pathClient = '/cliente'
+import { usertRoute } from '../../modules/user/routes/rout.js'
+export const pathUser = '/user'
 
 const router = Router()
-router.use(pathClient, clientRouter)
+router.use(pathUser, usertRoute)
 
 export default router

@@ -1,10 +1,9 @@
 {
   "name": "jl-comerciales_core",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --loader ts-node/esm --watch src/index.ts",
+    "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
@@ -17,17 +16,31 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.33.0",
+    "nodemon": "^3.1.10",
     "prisma": "^6.11.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
     "zod": "^3.25.75"
   }
 }

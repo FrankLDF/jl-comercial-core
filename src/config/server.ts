@@ -1,5 +1,9 @@
 import express, { Application } from 'express'
 import routes from '../routes/index.js'
+import prisma from './prismaConnect.js'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import morgan from 'morgan'
 export class Server {
   constructor(
     private app: Application = express(),
@@ -7,20 +11,57 @@ export class Server {
   ) {
     this.config()
     this.routes()
+    this.handleProcessSignals()
   }
 
   private config(): void {
     this.app.disable('x-powered-by')
     this.app.use(express.json())
+    this.app.use(cookieParser())
+    this.app.use(
+      cors({
+        origin: ['http://localhost:3001'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+      })
+    )
+    this.app.use(morgan('dev'))
   }
 
   private routes(): void {
     this.app.use('/api', routes)
   }
 
+  private handleProcessSignals(): void {
+    process.on('SIGINT', async () => {
+      await prisma.$disconnect()
+      console.log('🛑 Database disconnected (SIGINT)')
+      process.exit(0)
+    })
+
+    process.on('SIGTERM', async () => {
+      await prisma.$disconnect()
+      console.log('🛑 Database disconnected (SIGTERM)')
+      process.exit(0)
+    })
+  }
+
+  private async connectDB(): Promise<void> {
+    try {
+      console.log('entre aqui')
+      await prisma.$connect()
+      console.log('🖥️ Database connected successfully')
+    } catch (error) {
+      console.log('❌ Database connection failed:', error)
+      process.exit(1)
+    }
+  }
+
   public start(): void {
-    const showRunningMessage = () =>
+    this.connectDB()
+    this.app.listen(this.port, () =>
       console.log(`✅ Server running on port ${this.port}`)
-    this.app.listen(this.port, showRunningMessage)
+    )
   }
 }
