@@ -11,7 +11,7 @@ import { loginDto } from '../dto/dto.js'
 const _userService = new UserService()
 
 export class UserController {
-  async createUser(req: Request, res: Response) {
+  createUser = async (req: Request, res: Response) => {
     const validation = validateFull(userSchema, req.body)
 
     if (!validation.success) {
@@ -28,21 +28,21 @@ export class UserController {
       return res.status(500).json({ message: 'Error interno del servidor' })
     }
   }
-  async login(req: Request, res: Response) {
+  login = async (req: Request, res: Response) => {
     try {
       const validation: SafeParseReturnType<loginDto, unknown> =
         validatePartial(userSchema, req.body)
       if (!validation.success) {
         return res.status(400).json({ errors: validation.error.format() })
       }
-      const loginData: loginDto = validation.data as loginDto
+      const loginData = validation.data as loginDto
       const user = await _userService.login(loginData, res)
       return res.status(200).json({ user })
     } catch (error: any) {
       return res.status(401).json({ message: error.message })
     }
   }
-  async logout(req: Request, res: Response) {
+  logout = async (req: Request, res: Response) => {
     try {
       await _userService.logout(res)
       return res.status(200).json({ message: 'Sesión cerrada correctamente' })

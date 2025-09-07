@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt')
 
 const _userRepository = new UserRepository()
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'
-const COOKIE_NAME = 'access_token'
+const COOKIE_NAME = process.env.COOKIE_NAME || 'access_token'
 
 export class UserService {
   async create(userData: userDto) {
@@ -20,11 +20,14 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(userData.PASSWORD, 10)
 
-    return await _userRepository.create({
+    const newUser = await _userRepository.create({
       ...userData,
       PASSWORD: hashedPassword,
       FECHA_INSERCION: new Date(),
     })
+
+    const { PASSWORD: _, ...userSecure } = newUser
+    return { userSecure }
   }
 
   async login(condition: loginDto, res: Response) {
@@ -51,7 +54,7 @@ export class UserService {
       res.cookie(COOKIE_NAME, token, {
         httpOnly: true,
         secure: false,
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: msUntilMidnight,
       })
 
@@ -59,7 +62,7 @@ export class UserService {
 
       return safeUser
     } catch (error) {
-      console.log('Error en el servicio de login' + error)
+      console.log('Error en el servicio de login ' + error)
       throw error
     }
   }
@@ -68,7 +71,8 @@ export class UserService {
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
+      path: '/',
     })
     return { message: 'Sesión cerrada correctamente' }
   }

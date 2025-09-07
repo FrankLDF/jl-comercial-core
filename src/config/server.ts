@@ -22,8 +22,8 @@ export class Server {
       cors({
         origin: ['http://localhost:3001'],
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization'],
       })
     )
     this.app.use(morgan('dev'))
@@ -49,7 +49,6 @@ export class Server {
 
   private async connectDB(): Promise<void> {
     try {
-      console.log('entre aqui')
       await prisma.$connect()
       console.log('🖥️ Database connected successfully')
     } catch (error) {

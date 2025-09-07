@@ -1,9 +1,14 @@
 import { Router } from 'express'
 import { UserController } from '../controller/controler.js'
+import { authMiddleware } from '../../../common/middlewares/auth.js'
 
-export const usertRoute = Router()
+export const userRoute = Router()
 const _userController = new UserController()
 
-usertRoute.get('/', _userController.createUser as never)
-usertRoute.get('/login', _userController.login as never)
-usertRoute.get('/logout', _userController.logout as never)
+userRoute.post(
+  '/',
+  authMiddleware as never,
+  _userController.createUser as never
+)
+userRoute.post('/login', _userController.login as never)
+userRoute.post('/logout', _userController.logout as never)
