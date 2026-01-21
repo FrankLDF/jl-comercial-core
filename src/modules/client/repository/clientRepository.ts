@@ -1,52 +1,75 @@
-import { Cliente, Prisma } from '@prisma/client'
-import {
-  TxClient,
-  UpsertCondition,
-} from '../../core/repositories/repositories.js'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { ClientDto } from '../dto/clientDto.js'
-import { UserLoged } from '../../core/dto/dto.js'
 
+type PrismaExecutor = PrismaClient | Prisma.TransactionClient
 export class ClientRepository {
-  async getClient(
-    tx: TxClient,
-    condition: ClientDto,
-    order: 'asc' | 'desc' = 'asc'
-  ): Promise<Cliente[] | Error> {
-    try {
-      return await tx.cliente.findMany({
-        where: condition,
-        include: {
-          ENTIDAD: true,
-        },
-        orderBy: {
-          ENTIDAD: {
-            NOMBRES: order,
-          },
-        },
-      })
-    } catch (error) {
-      return error as Error
-    }
-  }
-  async upsertClient(
-    tx: TxClient,
-    condition: ClientDto,
-    user: UserLoged
-  ): Promise<Cliente | Error> {
-    try {
-      if (!condition?.ID) {
-        return await tx.cliente.create({
-          data: { ...condition, USUARIO_INSERCION: user.username },
-        })
-      }
+  constructor(private prisma: PrismaExecutor) {}
 
-      return await tx.cliente.upsert({
-        where: { ID: condition?.ID },
-        create: { ...condition, USUARIO_INSERCION: user.username },
-        update: { ...condition, USUARIO_ACTUALIZACION: user.username },
-      })
-    } catch (error) {
-      return error as Error
+  get(filter: ClientDto) {
+    return this.prisma.cliente.findMany({
+      where: {
+        ...filter,
+      },
+      include: { ENTIDAD: true },
+      orderBy: {
+        ENTIDAD: { NOMBRES: 'asc' },
+      },
+    })
+  }
+
+  async upsert(data: ClientDto, user: string) {
+    if (!data.ID) {
+      return this.create(data, user)
     }
+
+    return this.update(data.ID, data, user)
+  }
+
+  private create(data: ClientDto, user: string) {
+    const clienteData: any = {
+      ESTADO: data.ESTADO ?? 'A',
+      USUARIO_INSERCION: user,
+    }
+
+    if (data.ENTIDAD) {
+      clienteData.ENTIDAD = data.ENTIDAD.ID
+        ? {
+            connect: {
+              ID: data.ENTIDAD.ID,
+            },
+          }
+        : {
+            create: {
+              ...data.ENTIDAD,
+              USUARIO_INSERCION: user,
+            },
+          }
+    }
+
+    return this.prisma.cliente.create({
+      data: clienteData,
+      include: { ENTIDAD: true },
+    })
+  }
+
+  private update(id: number, data: ClientDto, user: string) {
+    return this.prisma.cliente.update({
+      where: { ID: id },
+      data: {
+        ...(data.ESTADO && { ESTADO: data.ESTADO }),
+
+        USUARIO_ACTUALIZACION: user,
+
+        ENTIDAD: data.ENTIDAD
+          ? {
+              update: {
+                ...data.ENTIDAD,
+                USUARIO_ACTUALIZACION: user,
+              },
+            }
+          : undefined,
+      },
+      include: { ENTIDAD: true },
+    })
   }
 }

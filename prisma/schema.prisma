@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+    url =     env("DATABASE_URL")
 }
 
 model Pais {
@@ -73,6 +73,43 @@ model TipoDocIdentidad {
   ENTIDAD  Entidad[]
 }
 
+model Puesto {
+  ID                    Int        @id @default(autoincrement())
+  NOMBRE                String
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  PERSONAL              Personal[]
+}
+
+model Rol {
+  ID                    Int        @id @default(autoincrement())
+  NOMBRE                String
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  USUARIOS RolUsuario[]
+}
+
+model Cliente {
+  ID Int @id @default(autoincrement())
+  ID_ENTIDAD Int @unique
+  ENTIDAD Entidad @relation(fields: [ID_ENTIDAD], references: [ID])
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+}
+
 model Entidad {
   ID                   Int           @id @default(autoincrement())
   TIPO_ENTIDAD         String 
@@ -115,18 +152,6 @@ model Entidad {
   CIUDAD                  Ciudad? @relation(fields: [ID_CIUDAD], references: [ID])
 }
 
-model Puesto {
-  ID                    Int        @id @default(autoincrement())
-  NOMBRE                String
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
-
-
-  PERSONAL              Personal[]
-}
 model Personal {
   ID                    Int        @id @default(autoincrement())
   ID_ENTIDAD            Int        @unique
@@ -142,35 +167,17 @@ model Personal {
   USUARIO Usuario?
 }
 
-model Rol {
-  ID                    Int        @id @default(autoincrement())
-  NOMBRE                String
+model Proveedor {
+  ID Int @id @default(autoincrement())
+  ID_ENTIDAD Int @unique
+  ENTIDAD Entidad @relation(fields: [ID_ENTIDAD], references: [ID])
   ESTADO                String
   FECHA_INSERCION       DateTime   @default(now())
   USUARIO_INSERCION     String
   FECHA_ACTUALIZACION   DateTime?  @updatedAt
   USUARIO_ACTUALIZACION String?
-
-
-  USUARIOS RolUsuario[]
 }
 
-
-model Usuario {
-  ID                    Int        @id @default(autoincrement())
-  ID_PERSONAL           Int        @unique
-  NOMBRE_USUARIO        String     @unique
-  PASSWORD              String
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
-
-
-  PERSONAL  Personal    @relation(fields: [ID_PERSONAL], references: [ID])
-  ROL     RolUsuario[]
-}
 
 model RolUsuario {
   ID_USUARIO Int
@@ -187,25 +194,18 @@ model RolUsuario {
   @@id([ID_USUARIO, ID_ROL])
 }
 
-model Cliente {
-  ID Int @id @default(autoincrement())
-  ID_ENTIDAD Int @unique
-  ENTIDAD Entidad @relation(fields: [ID_ENTIDAD], references: [ID])
+model Usuario {
+  ID                    Int        @id @default(autoincrement())
+  ID_PERSONAL           Int        @unique
+  NOMBRE_USUARIO        String     @unique
+  PASSWORD              String
   ESTADO                String
   FECHA_INSERCION       DateTime   @default(now())
   USUARIO_INSERCION     String
   FECHA_ACTUALIZACION   DateTime?  @updatedAt
   USUARIO_ACTUALIZACION String?
-}
-model Proveedor {
-  ID Int @id @default(autoincrement())
-  ID_ENTIDAD Int @unique
-  ENTIDAD Entidad @relation(fields: [ID_ENTIDAD], references: [ID])
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
-}
 
 
+  PERSONAL  Personal    @relation(fields: [ID_PERSONAL], references: [ID])
+  ROL     RolUsuario[]
+}

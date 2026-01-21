@@ -23,7 +23,6 @@ export class UserService {
     const newUser = await _userRepository.create({
       ...userData,
       PASSWORD: hashedPassword,
-      FECHA_INSERCION: new Date(),
     })
 
     const { PASSWORD: _, ...userSecure } = newUser
@@ -48,7 +47,7 @@ export class UserService {
       const token = jwt.sign(
         { sub: user.ID, username: user.NOMBRE_USUARIO },
         JWT_SECRET,
-        { expiresIn: Math.floor(msUntilMidnight / 1000) }
+        { expiresIn: Math.floor(msUntilMidnight / 1000) },
       )
 
       res.cookie(COOKIE_NAME, token, {

@@ -44,8 +44,8 @@ export interface EntidadDto {
   OCUPACION?: string
   POSICION_EMPRESA?: string
   MONEDA_INGRESO?: string
-  INGRESO_PROMEDIO?: string
-  OTRO_INGRESO?: string
+  INGRESO_PROMEDIO?: number
+  OTRO_INGRESO?: number
   RAZON_OTRO_INGRESO?: string
   EMAIL?: string
   ID_PAIS?: string
@@ -55,8 +55,4 @@ export interface EntidadDto {
   DESC_DIRECCION?: string
   FECHA_NACIMIENTO?: Date
   ESTADO: string
-  FECHA_INSERCION?: Date
-  USUARIO_INSERCION?: string
-  FECHA_ACTUALIZACION?: Date
-  USUARIO_ACTUALIZACION?: string
 }

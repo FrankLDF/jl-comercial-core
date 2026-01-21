@@ -1,0 +1,91 @@
+model Pais {
+  ID            String     @id
+  NOMBRE        String     
+  NACIONALIDAD  String
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String?    
+  PROVINCIAS    Provincia[]
+  ENTIDAD    Entidad[]
+}
+
+model Provincia {
+  ID           Int     @id @default(autoincrement())
+  ID_PAIS      String  
+  NOMBRE       String
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String? 
+  pais         Pais    @relation(fields: [ID_PAIS], references: [ID])
+  MUNICIPIOS   Municipio[]
+  ENTIDAD    Entidad[]
+}
+
+model Municipio {
+  ID            Int       @id @default(autoincrement())
+  ID_PROVINCIA  Int
+  NOMBRE        String
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String?    
+  provincia     Provincia @relation(fields: [ID_PROVINCIA], references: [ID])
+  CIUDADES      Ciudad[]
+  ENTIDAD    Entidad[]
+}
+
+model Ciudad {
+  ID            Int       @id @default(autoincrement())
+  ID_MUNICIPIO  Int
+  NOMBRE        String
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String?
+  ENTIDAD    Entidad[]
+  municipio     Municipio @relation(fields: [ID_MUNICIPIO], references: [ID])
+}
+
+
+model TipoDocIdentidad {
+  ID       Int       @id @default(autoincrement())
+  NOMBRE   String
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String?
+  ENTIDAD  Entidad[]
+}
+
+model Puesto {
+  ID                    Int        @id @default(autoincrement())
+  NOMBRE                String
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  PERSONAL              Personal[]
+}
+
+model Rol {
+  ID                    Int        @id @default(autoincrement())
+  NOMBRE                String
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  USUARIOS RolUsuario[]
+}

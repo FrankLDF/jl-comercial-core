@@ -4,6 +4,8 @@ import prisma from './prismaConnect.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import morgan from 'morgan'
+import { responseHandler } from '../common/middlewares/responseMiddleware.js'
+import { errorMiddleware } from '../common/middlewares/errorMiddleware.js'
 export class Server {
   constructor(
     private app: Application = express(),
@@ -30,7 +32,9 @@ export class Server {
   }
 
   private routes(): void {
+    this.app.use(responseHandler)
     this.app.use('/api', routes)
+    this.app.use(errorMiddleware)
   }
 
   private handleProcessSignals(): void {

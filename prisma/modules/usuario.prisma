@@ -1,0 +1,30 @@
+model RolUsuario {
+  ID_USUARIO Int
+  ID_ROL     Int
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+  USUARIO Usuario @relation(fields: [ID_USUARIO], references: [ID])
+  ROL     Rol     @relation(fields: [ID_ROL], references: [ID])
+
+  @@id([ID_USUARIO, ID_ROL])
+}
+
+model Usuario {
+  ID                    Int        @id @default(autoincrement())
+  ID_PERSONAL           Int        @unique
+  NOMBRE_USUARIO        String     @unique
+  PASSWORD              String
+  ESTADO                String
+  FECHA_INSERCION       DateTime   @default(now())
+  USUARIO_INSERCION     String
+  FECHA_ACTUALIZACION   DateTime?  @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  PERSONAL  Personal    @relation(fields: [ID_PERSONAL], references: [ID])
+  ROL     RolUsuario[]
+}

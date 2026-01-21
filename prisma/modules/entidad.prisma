@@ -1,0 +1,41 @@
+model Entidad {
+  ID                   Int           @id @default(autoincrement())
+  TIPO_ENTIDAD         String 
+  TIPO_DOC_IDENT       Int 
+  DOCUMENTO_IDENT      String 
+  NOMBRES              String 
+  APELLIDOS            String? 
+  SEXO                 String? 
+  ESTADO_CIVIL                 String? 
+  TELEFONO                 String? 
+  TIPO_EMPLEO                 String? 
+  NOMBRE_EMPRESA_TRABAJO                 String?   
+  OCUPACION                 String?
+  POSICION_EMPRESA                 String? 
+  MONEDA_INGRESO                 String?
+  INGRESO_PROMEDIO                 Int?
+  OTRO_INGRESO                Int?
+  RAZON_OTRO_INGRESO                String?
+  EMAIL                 String? 
+  ID_PAIS              String? 
+  ID_PROVINCIA         Int? 
+  ID_MUNICIPIO         Int? 
+  ID_CIUDAD            Int? 
+  DESC_DIRECCION       String?
+  FECHA_NACIMIENTO     DateTime? 
+  ESTADO               String
+  FECHA_INSERCION      DateTime      @default(now())
+  USUARIO_INSERCION    String
+  FECHA_ACTUALIZACION  DateTime?     @updatedAt
+  USUARIO_ACTUALIZACION String?
+
+
+  PERSONAL Personal?
+  CLIENTE Cliente?
+  PROVEEDOR Proveedor?
+  TIPO_DOCUMENTO        TipoDocIdentidad @relation(fields: [TIPO_DOC_IDENT], references: [ID])
+  PAIS                  Pais? @relation(fields: [ID_PAIS], references: [ID])
+  PROVINCIA                  Provincia? @relation(fields: [ID_PROVINCIA], references: [ID])
+  MUNICIPIO                  Municipio? @relation(fields: [ID_MUNICIPIO], references: [ID])
+  CIUDAD                  Ciudad? @relation(fields: [ID_CIUDAD], references: [ID])
+}
