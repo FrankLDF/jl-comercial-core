@@ -1,10 +1,10 @@
-model Cliente {
-  ID Int @id @default(autoincrement())
-  ID_ENTIDAD Int @unique
-  ENTIDAD Entidad @relation(fields: [ID_ENTIDAD], references: [ID])
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
+model cliente {
+  id Int @id @default(autoincrement())
+  id_entidad Int @unique
+  entidad entidad @relation(fields: [id_entidad], references: [id])
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
 }

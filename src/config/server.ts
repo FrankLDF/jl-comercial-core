@@ -9,7 +9,7 @@ import { errorMiddleware } from '../common/middlewares/errorMiddleware.js'
 export class Server {
   constructor(
     private app: Application = express(),
-    private port: string = process.env.PORT || '8081'
+    private port: string = process.env.PORT || '8081',
   ) {
     this.config()
     this.routes()
@@ -22,11 +22,11 @@ export class Server {
     this.app.use(cookieParser())
     this.app.use(
       cors({
-        origin: ['http://localhost:3001'],
+        origin: process.env.CORS_ORIGIN,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
-      })
+      }),
     )
     this.app.use(morgan('dev'))
   }
@@ -64,7 +64,7 @@ export class Server {
   public start(): void {
     this.connectDB()
     this.app.listen(this.port, () =>
-      console.log(`✅ Server running on port ${this.port}`)
+      console.log(`✅ Server running on port ${this.port}`),
     )
   }
 }

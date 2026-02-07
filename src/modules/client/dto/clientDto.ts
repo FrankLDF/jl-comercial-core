@@ -1,12 +1,12 @@
 import { EntidadDto } from '../../core/dto/dto.js'
 
 export interface ClientDto {
-  ID?: number
-  ESTADO?: string
-  ENTIDAD?: EntidadDto
+  id?: number
+  estado?: string
+  entidad?: EntidadDto
 }
 
 export interface ClientCondition {
-  CLIENTE?: ClientDto
-  ENTIDAD?: EntidadDto
+  cliente?: ClientDto
+  entidad?: EntidadDto
 }

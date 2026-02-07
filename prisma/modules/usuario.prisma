@@ -1,30 +1,30 @@
-model RolUsuario {
-  ID_USUARIO Int
-  ID_ROL     Int
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
+model rol_usuario {
+  id_usuario Int
+  id_rol     Int
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
 
-  USUARIO Usuario @relation(fields: [ID_USUARIO], references: [ID])
-  ROL     Rol     @relation(fields: [ID_ROL], references: [ID])
+  usuario usuario @relation(fields: [id_usuario], references: [id])
+  rol     rol     @relation(fields: [id_rol], references: [id])
 
-  @@id([ID_USUARIO, ID_ROL])
+  @@id([id_usuario, id_rol])
 }
 
-model Usuario {
-  ID                    Int        @id @default(autoincrement())
-  ID_PERSONAL           Int        @unique
-  NOMBRE_USUARIO        String     @unique
-  PASSWORD              String
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
+model usuario {
+  id                    Int        @id @default(autoincrement())
+  id_personal           Int        @unique
+  nombre_usuario        String     @unique
+  password              String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
 
 
-  PERSONAL  Personal    @relation(fields: [ID_PERSONAL], references: [ID])
-  ROL     RolUsuario[]
+  personal  personal    @relation(fields: [id_personal], references: [id])
+  rol     rol_usuario[]
 }

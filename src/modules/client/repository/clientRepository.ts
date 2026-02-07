@@ -10,66 +10,66 @@ export class ClientRepository {
       where: {
         ...filter,
       },
-      include: { ENTIDAD: true },
+      include: { entidad: true },
       orderBy: {
-        ENTIDAD: { NOMBRES: 'asc' },
+        entidad: { nombres: 'asc' },
       },
     })
   }
 
   async upsert(data: ClientDto, user: string) {
-    if (!data.ID) {
+    if (!data.id) {
       return this.create(data, user)
     }
 
-    return this.update(data.ID, data, user)
+    return this.update(data.id, data, user)
   }
 
   private create(data: ClientDto, user: string) {
     const clienteData: any = {
-      ESTADO: data.ESTADO ?? 'A',
-      USUARIO_INSERCION: user,
+      estado: data.estado ?? 'A',
+      usuario_insercion: user,
     }
 
-    if (data.ENTIDAD) {
-      clienteData.ENTIDAD = data.ENTIDAD.ID
+    if (data.entidad) {
+      clienteData.entidad = data.entidad.id
         ? {
             connect: {
-              ID: data.ENTIDAD.ID,
+              id: data.entidad.id,
             },
           }
         : {
             create: {
-              ...data.ENTIDAD,
-              USUARIO_INSERCION: user,
+              ...data.entidad,
+              usuario_insercion: user,
             },
           }
     }
 
     return this.prisma.cliente.create({
       data: clienteData,
-      include: { ENTIDAD: true },
+      include: { entidad: true },
     })
   }
 
   private update(id: number, data: ClientDto, user: string) {
     return this.prisma.cliente.update({
-      where: { ID: id },
+      where: { id: id },
       data: {
-        ...(data.ESTADO && { ESTADO: data.ESTADO }),
+        ...(data.estado && { estado: data.estado }),
 
-        USUARIO_ACTUALIZACION: user,
+        usuario_actualizacion: user,
 
-        ENTIDAD: data.ENTIDAD
+        entidad: data.entidad
           ? {
               update: {
-                ...data.ENTIDAD,
-                USUARIO_ACTUALIZACION: user,
+                ...data.entidad,
+                usuario_actualizacion: user,
               },
             }
           : undefined,
       },
-      include: { ENTIDAD: true },
+      include: { entidad: true },
     })
   }
 }

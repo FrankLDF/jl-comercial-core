@@ -1,91 +1,91 @@
-model Pais {
-  ID            String     @id
-  NOMBRE        String     
-  NACIONALIDAD  String
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String?    
-  PROVINCIAS    Provincia[]
-  ENTIDAD    Entidad[]
+model pais {
+  id            String     @id
+  nombre        String     
+  nacionalidad  String
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String?    
+  provincias    provincia[]
+  entidad    entidad[]
 }
 
-model Provincia {
-  ID           Int     @id @default(autoincrement())
-  ID_PAIS      String  
-  NOMBRE       String
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String? 
-  pais         Pais    @relation(fields: [ID_PAIS], references: [ID])
-  MUNICIPIOS   Municipio[]
-  ENTIDAD    Entidad[]
+model provincia {
+  id           Int     @id @default(autoincrement())
+  id_pais      String  
+  nombre       String
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String? 
+  pais         pais    @relation(fields: [id_pais], references: [id])
+  municipios   municipio[]
+  entidad    entidad[]
 }
 
-model Municipio {
-  ID            Int       @id @default(autoincrement())
-  ID_PROVINCIA  Int
-  NOMBRE        String
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String?    
-  provincia     Provincia @relation(fields: [ID_PROVINCIA], references: [ID])
-  CIUDADES      Ciudad[]
-  ENTIDAD    Entidad[]
+model municipio {
+  id            Int       @id @default(autoincrement())
+  id_provincia  Int
+  nombre        String
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String?    
+  provincia     provincia @relation(fields: [id_provincia], references: [id])
+  ciudades      ciudad[]
+  entidad    entidad[]
 }
 
-model Ciudad {
-  ID            Int       @id @default(autoincrement())
-  ID_MUNICIPIO  Int
-  NOMBRE        String
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String?
-  ENTIDAD    Entidad[]
-  municipio     Municipio @relation(fields: [ID_MUNICIPIO], references: [ID])
+model ciudad {
+  id            Int       @id @default(autoincrement())
+  id_municipio  Int
+  nombre        String
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String?
+  entidad    entidad[]
+  municipio     municipio @relation(fields: [id_municipio], references: [id])
 }
 
 
-model TipoDocIdentidad {
-  ID       Int       @id @default(autoincrement())
-  NOMBRE   String
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String?
-  ENTIDAD  Entidad[]
+model tipo_doc_identidad {
+  id       Int       @id @default(autoincrement())
+  nombre   String
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String?
+  entidad    entidad[]
 }
 
-model Puesto {
-  ID                    Int        @id @default(autoincrement())
-  NOMBRE                String
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
+model puesto {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
 
 
-  PERSONAL              Personal[]
+  personal              personal[]
 }
 
-model Rol {
-  ID                    Int        @id @default(autoincrement())
-  NOMBRE                String
-  ESTADO                String
-  FECHA_INSERCION       DateTime   @default(now())
-  USUARIO_INSERCION     String
-  FECHA_ACTUALIZACION   DateTime?  @updatedAt
-  USUARIO_ACTUALIZACION String?
+model rol {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
 
 
-  USUARIOS RolUsuario[]
+  usuarios rol_usuario[]
 }

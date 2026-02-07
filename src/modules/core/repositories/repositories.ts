@@ -1,10 +1,10 @@
 import {
-  Ciudad,
-  Entidad,
-  Municipio,
-  Pais,
+  ciudad,
+  entidad,
+  municipio,
+  pais,
   Prisma,
-  Provincia,
+  provincia,
 } from '@prisma/client'
 import { PrismaClient } from '@prisma/client/extension'
 import { EntidadDto, UserLoged } from '../dto/dto.js'
@@ -20,50 +20,50 @@ export interface UpsertCondition<T> {
 export class GeneralRepository {
   async getCountry(
     tx: TxClient,
-    condition: Prisma.PaisFindManyArgs
-  ): Promise<Pais[] | Error> {
+    condition: Prisma.paisFindManyArgs,
+  ): Promise<pais[] | Error> {
     return await tx.pais.findMany(condition)
   }
   async getProvince(
     tx: TxClient,
-    condition: Prisma.ProvinciaFindManyArgs
-  ): Promise<Provincia[] | Error> {
+    condition: Prisma.provinciaFindManyArgs,
+  ): Promise<provincia[] | Error> {
     return await tx.provincia.findMany(condition)
   }
   async getMunicipe(
     tx: TxClient,
-    condition: Prisma.MunicipioFindManyArgs
-  ): Promise<Municipio[] | Error> {
+    condition: Prisma.municipioFindManyArgs,
+  ): Promise<municipio[] | Error> {
     return await tx.municipio.findMany(condition)
   }
   async getSector(
     tx: TxClient,
-    condition: Prisma.CiudadFindManyArgs
-  ): Promise<Ciudad[] | Error> {
+    condition: Prisma.ciudadFindManyArgs,
+  ): Promise<ciudad[] | Error> {
     return await tx.ciudad.findMany(condition)
   }
   async getEntity(
     tx: TxClient,
-    condition: Prisma.EntidadFindManyArgs
-  ): Promise<Entidad[] | Error> {
+    condition: Prisma.entidadFindManyArgs,
+  ): Promise<entidad[] | Error> {
     return await tx.entidad.findMany(condition)
   }
   async upsertEntity(
     tx: TxClient,
     condition: EntidadDto,
-    user: UserLoged
-  ): Promise<Entidad | Error> {
+    user: UserLoged,
+  ): Promise<entidad | Error> {
     try {
-      if (!condition?.ID) {
+      if (!condition?.id) {
         return await tx.entidad.create({
-          data: { ...condition, USUARIO_INSERCION: user.username },
+          data: { ...condition, usuario_insercion: user.username },
         })
       }
 
       return await tx.entidad.upsert({
-        where: { ID: condition?.ID },
-        create: { ...condition, USUARIO_INSERCION: user.username },
-        update: { ...condition, USUARIO_ACTUALIZACION: user.username },
+        where: { id: condition?.id },
+        create: { ...condition, usuario_insercion: user.username },
+        update: { ...condition, usuario_actualizacion: user.username },
       })
     } catch (error) {
       return error as Error

@@ -1,41 +1,41 @@
-model Entidad {
-  ID                   Int           @id @default(autoincrement())
-  TIPO_ENTIDAD         String 
-  TIPO_DOC_IDENT       Int 
-  DOCUMENTO_IDENT      String 
-  NOMBRES              String 
-  APELLIDOS            String? 
-  SEXO                 String? 
-  ESTADO_CIVIL                 String? 
-  TELEFONO                 String? 
-  TIPO_EMPLEO                 String? 
-  NOMBRE_EMPRESA_TRABAJO                 String?   
-  OCUPACION                 String?
-  POSICION_EMPRESA                 String? 
-  MONEDA_INGRESO                 String?
-  INGRESO_PROMEDIO                 Int?
-  OTRO_INGRESO                Int?
-  RAZON_OTRO_INGRESO                String?
-  EMAIL                 String? 
-  ID_PAIS              String? 
-  ID_PROVINCIA         Int? 
-  ID_MUNICIPIO         Int? 
-  ID_CIUDAD            Int? 
-  DESC_DIRECCION       String?
-  FECHA_NACIMIENTO     DateTime? 
-  ESTADO               String
-  FECHA_INSERCION      DateTime      @default(now())
-  USUARIO_INSERCION    String
-  FECHA_ACTUALIZACION  DateTime?     @updatedAt
-  USUARIO_ACTUALIZACION String?
+model entidad {
+  id                   Int           @id @default(autoincrement())
+  tipo_entidad         String 
+  tipo_doc_ident       Int 
+  documento_ident      String 
+  nombres              String 
+  apellidos            String? 
+  sexo                 String? 
+  estado_civil                 String? 
+  telefono                 String? 
+  tipo_empleo                 String? 
+  nombre_empresa_trabajo                 String?   
+  ocupacion                 String?
+  posicion_empresa                 String? 
+  moneda_ingreso                 String?
+  ingreso_promedio                 Int?
+  otro_ingreso                Int?
+  razon_otro_ingreso                String?
+  email                 String? 
+  id_pais              String? 
+  id_provincia         Int? 
+  id_municipio         Int? 
+  id_ciudad            Int? 
+  desc_direccion       String?
+  fecha_nacimiento     DateTime? 
+  estado               String
+  fecha_insercion      DateTime      @default(now())
+  usuario_insercion    String
+  fecha_actualizacion  DateTime?     @updatedAt
+  usuario_actualizacion String?
 
 
-  PERSONAL Personal?
-  CLIENTE Cliente?
-  PROVEEDOR Proveedor?
-  TIPO_DOCUMENTO        TipoDocIdentidad @relation(fields: [TIPO_DOC_IDENT], references: [ID])
-  PAIS                  Pais? @relation(fields: [ID_PAIS], references: [ID])
-  PROVINCIA                  Provincia? @relation(fields: [ID_PROVINCIA], references: [ID])
-  MUNICIPIO                  Municipio? @relation(fields: [ID_MUNICIPIO], references: [ID])
-  CIUDAD                  Ciudad? @relation(fields: [ID_CIUDAD], references: [ID])
+  personal personal?
+  cliente cliente?
+  proveedor proveedor?
+  tipo_documento        tipo_doc_identidad @relation(fields: [tipo_doc_ident], references: [id])
+  pais                  pais? @relation(fields: [id_pais], references: [id])
+  provincia                  provincia? @relation(fields: [id_provincia], references: [id])
+  municipio                  municipio? @relation(fields: [id_municipio], references: [id])
+  ciudad                  ciudad? @relation(fields: [id_ciudad], references: [id])
 }
