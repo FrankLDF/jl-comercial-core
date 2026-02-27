@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from '@prisma/client'
-import { ClientDto } from '../dto/clientDto.js'
+import { ProveedorDto } from '../dto/proveedorDto.js'
 
 type PrismaExecutor = PrismaClient | Prisma.TransactionClient
-export class ClientRepository {
+export class ProveedorRepository {
   constructor(private prisma: PrismaExecutor) {}
 
   get(filter: any) {
@@ -16,7 +16,7 @@ export class ClientRepository {
 
     const { id, estado, start_date, end_date, ...entidadFilters } = normalizedFilter
 
-    const whereClause: Prisma.clienteWhereInput = {
+    const whereClause: Prisma.proveedorWhereInput = {
       ...(id && { id: Number(id) }),
       ...(estado && { estado }),
     }
@@ -51,7 +51,7 @@ export class ClientRepository {
       }
     }
 
-    return this.prisma.cliente.findMany({
+    return this.prisma.proveedor.findMany({
       where: whereClause,
       include: { entidad: true },
       orderBy: {
@@ -60,7 +60,7 @@ export class ClientRepository {
     })
   }
 
-  async upsert(data: ClientDto, user: string) {
+  async upsert(data: ProveedorDto, user: string) {
     if (!data.id) {
       return this.create(data, user)
     }
@@ -68,14 +68,14 @@ export class ClientRepository {
     return this.update(data.id, data, user)
   }
 
-  private create(data: ClientDto, user: string) {
-    const clienteData: any = {
+  private create(data: ProveedorDto, user: string) {
+    const proveedorData: any = {
       estado: data.estado ?? 'A',
       usuario_insercion: user,
     }
 
     if (data.entidad) {
-      clienteData.entidad = data.entidad.id
+      proveedorData.entidad = data.entidad.id
         ? {
             connect: {
               id: data.entidad.id,
@@ -89,16 +89,16 @@ export class ClientRepository {
           }
     }
 
-    return this.prisma.cliente.create({
-      data: clienteData,
+    return this.prisma.proveedor.create({
+      data: proveedorData,
       include: { entidad: true },
     })
   }
 
-  private update(id: number, data: ClientDto, user: string) {
+  private update(id: number, data: ProveedorDto, user: string) {
     const { id: entidadId, fecha_insercion, usuario_insercion, ...entidadUpdateData } = (data.entidad as any) || {}
 
-    return this.prisma.cliente.update({
+    return this.prisma.proveedor.update({
       where: { id: id },
       data: {
         ...(data.estado && { estado: data.estado }),

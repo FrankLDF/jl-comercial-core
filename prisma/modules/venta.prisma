@@ -1,0 +1,107 @@
+enum EstadoVenta {
+  ACTIVA
+  PAGADA
+  CANCELADA
+}
+
+enum TipoPago {
+  CONTADO
+  CREDITO
+}
+
+model venta {
+  id                    Int @id @default(autoincrement())
+  id_cliente            Int
+
+  fecha                 DateTime @default(now())
+  tipo_pago             TipoPago
+
+  monto_total           Decimal  @db.Decimal(18,2)
+  inicial               Decimal? @db.Decimal(18,2)
+  saldo_pendiente       Decimal? @db.Decimal(18,2)
+
+  tasa_interes          Decimal? @db.Decimal(5,2)
+  cantidad_cuotas       Int?
+
+  estado_venta          EstadoVenta @default(ACTIVA)
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  cliente               cliente @relation(fields: [id_cliente], references: [id])
+  detalles              venta_detalle[]
+  cuotas                venta_cuota[]
+}
+
+model venta_detalle {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+  id_vehiculo_ingreso   Int @unique
+
+  precio_venta          Decimal @db.Decimal(18,2)
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+  vehiculo_ingreso      vehiculo_ingreso @relation(fields: [id_vehiculo_ingreso], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model venta_cuota {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+
+  numero_cuota          Int
+  fecha_vencimiento     DateTime
+
+  /// Monto original de la cuota
+  monto                 Decimal @db.Decimal(18,2)
+
+  /// Total pagado hasta ahora
+  monto_pagado          Decimal @db.Decimal(18,2) @default(0)
+
+  estado_cuota          EstadoCuota @default(PENDIENTE)
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+
+  aplicaciones          pago_cuota_aplicacion[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_venta {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+
+  fecha_pago            DateTime @default(now())
+  monto_total           Decimal @db.Decimal(18,2)
+  metodo_pago           String?
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+
+  aplicaciones          pago_cuota_aplicacion[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_cuota_aplicacion {
+  id                Int @id @default(autoincrement())
+
+  id_pago_venta     Int
+  id_venta_cuota    Int
+
+  /// Monto de este pago aplicado a esta cuota específica
+  monto_aplicado    Decimal @db.Decimal(18,2)
+
+  pago_venta        pago_venta @relation(fields: [id_pago_venta], references: [id])
+  venta_cuota       venta_cuota @relation(fields: [id_venta_cuota], references: [id])
+}
+

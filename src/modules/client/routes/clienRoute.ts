@@ -8,4 +8,4 @@ const _clientController = new ClientController()
 clientRoute
   .get('/', authMiddleware as never, _clientController.get)
   .post('/', authMiddleware as never, _clientController.upsert)
-// .put('/:id', authMiddleware as never, _clientController.updateStatus)
+

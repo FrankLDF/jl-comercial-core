@@ -1,0 +1,50 @@
+enum TipoPago {
+  CONTADO
+  CREDITO
+}
+
+enum EstadoRecepcion {
+  ABIERTA
+  CERRADA
+  ANULADA
+}
+
+model recepcion {
+  id                    Int      @id @default(autoincrement())
+  id_proveedor          Int
+
+  fecha                 DateTime @default(now())
+  tipo_pago             TipoPago
+
+  monto_total           Decimal  @db.Decimal(18,2)
+  inicial               Decimal? @db.Decimal(18,2)
+  saldo_pendiente       Decimal? @db.Decimal(18,2)
+
+  estado_recepcion      EstadoRecepcion @default(ABIERTA)
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
+  detalles              recepcion_detalle[]
+}
+
+model recepcion_detalle {
+  id                    Int @id @default(autoincrement())
+  id_recepcion          Int
+  id_vehiculo_ingreso   Int @unique
+
+  costo_unitario        Decimal  @db.Decimal(18,2)
+  otros_costos          Decimal? @db.Decimal(18,2)
+  costo_total           Decimal  @db.Decimal(18,2)
+
+  recepcion             recepcion @relation(fields: [id_recepcion], references: [id])
+  vehiculo_ingreso      vehiculo_ingreso @relation(fields: [id_vehiculo_ingreso], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}

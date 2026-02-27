@@ -16,7 +16,7 @@ export class ClientService {
     })
   }
 
-  async get(filter: ClientDto) {
+  async get(filter: any) {
     const repo = new ClientRepository(prisma)
     return repo.get(filter)
   }

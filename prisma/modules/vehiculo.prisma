@@ -1,0 +1,56 @@
+enum CondicionVehiculo {
+  NUEVO
+  USADO
+}
+
+enum EstadoIngreso {
+  EN_STOCK
+  VENDIDO
+}
+
+model vehiculo {
+  id                    Int      @id @default(autoincrement())
+
+  chasis                String   @unique
+  numero_maquina          String?   @unique
+  placa                 String?  @unique
+
+  marca                 String
+  modelo                String
+  estilo                String
+  anio                  Int
+  color                 String?
+  cilindraje            Int?
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  ingresos              vehiculo_ingreso[]
+}
+
+model vehiculo_ingreso {
+  id                    Int      @id @default(autoincrement())
+  id_vehiculo           Int
+
+  condicion             CondicionVehiculo
+  costo_compra          Decimal  @db.Decimal(18,2)
+  precio_venta_estimado Decimal  @db.Decimal(18,2)
+
+  estado_ingreso        EstadoIngreso @default(EN_STOCK)
+  fecha_ingreso         DateTime @default(now())
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  vehiculo              vehiculo @relation(fields: [id_vehiculo], references: [id])
+
+  recepcion_detalle     recepcion_detalle?
+  venta_detalle         venta_detalle?
+}
+

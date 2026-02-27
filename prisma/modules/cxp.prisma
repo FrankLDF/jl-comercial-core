@@ -1,0 +1,45 @@
+enum EstadoCuentaPorPagar {
+  PENDIENTE
+  PARCIAL
+  PAGADA
+  VENCIDA
+  ANULADA
+}
+
+model cuenta_por_pagar {
+  id                    Int @id @default(autoincrement())
+  id_proveedor          Int
+  id_recepcion          Int @unique
+
+  fecha_emision         DateTime @default(now())
+  fecha_vencimiento     DateTime?
+
+  monto_original        Decimal @db.Decimal(18,2)
+  saldo_pendiente       Decimal @db.Decimal(18,2)
+
+  estado_cxp            EstadoCuentaPorPagar @default(PENDIENTE)
+
+  proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
+  recepcion             recepcion @relation(fields: [id_recepcion], references: [id])
+
+  pagos                 pago_cuenta_por_pagar[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_cuenta_por_pagar {
+  id                    Int @id @default(autoincrement())
+  id_cuenta_por_pagar   Int
+
+  fecha_pago            DateTime @default(now())
+  monto_pagado          Decimal @db.Decimal(18,2)
+  metodo_pago           String?
+
+  cuenta_por_pagar      cuenta_por_pagar @relation(fields: [id_cuenta_por_pagar], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}

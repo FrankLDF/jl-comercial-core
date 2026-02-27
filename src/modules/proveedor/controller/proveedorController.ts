@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
-import { ClientService } from '../services/clientService.js'
-import { ClientDto } from '../dto/clientDto.js'
+import { ProveedorService } from '../services/proveedorService.js'
+import { ProveedorDto } from '../dto/proveedorDto.js'
 
-const service = new ClientService()
+const service = new ProveedorService()
 
-export class ClientController {
+export class ProveedorController {
   async upsert(req: Request, res: Response, next: NextFunction) {
     try {
-      const payload: ClientDto = req.body
+      const payload: ProveedorDto = req.body
       const result = await service.upsert(payload, req.user)
       res.ok(result)
     } catch (err) {

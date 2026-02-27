@@ -1,12 +1,7 @@
 import { EntidadDto } from '../../core/dto/dto.js'
 
-export interface ClientDto {
+export interface ProveedorDto {
   id?: number
   estado?: string
   entidad?: Partial<EntidadDto>
-}
-
-export interface ClientCondition {
-  cliente?: ClientDto
-  entidad?: EntidadDto
 }
