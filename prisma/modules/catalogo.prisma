@@ -89,3 +89,53 @@ model rol {
 
   usuarios rol_usuario[]
 }
+
+model marca {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  modelos               modelo[]
+  vehiculos             vehiculo[]
+}
+
+model modelo {
+  id                    Int        @id @default(autoincrement())
+  id_marca              Int
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  marca                 marca      @relation(fields: [id_marca], references: [id])
+  estilos               estilo[]
+  vehiculos             vehiculo[]
+}
+
+model estilo {
+  id                    Int        @id @default(autoincrement())
+  id_modelo             Int
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  modelo                modelo     @relation(fields: [id_modelo], references: [id])
+  vehiculos             vehiculo[]
+}
+
+model color {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  vehiculos             vehiculo[]
+}

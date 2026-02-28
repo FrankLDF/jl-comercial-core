@@ -7,4 +7,5 @@ model cliente {
   usuario_insercion     String
   fecha_actualizacion   DateTime?  @updatedAt
   usuario_actualizacion String?
+  ventas                venta[]
 }

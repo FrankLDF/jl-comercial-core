@@ -1,6 +1,10 @@
 import prisma from '../../../config/prismaConnect.js'
 import {
   CiudadCondition,
+  ColorCondition,
+  EstiloCondition,
+  MarcaCondition,
+  ModeloCondition,
   MunicipioCondition,
   PaisCondition,
   ProvinceCondition,
@@ -26,6 +30,26 @@ export class generalService {
   }
   async getSector(condition: CiudadCondition) {
     return await _generalRepo.getSector(prisma, {
+      where: { ...condition },
+    })
+  }
+  async getMarca(condition: MarcaCondition) {
+    return await _generalRepo.getMarca(prisma, {
+      where: { ...condition },
+    })
+  }
+  async getModelo(condition: ModeloCondition) {
+    return await _generalRepo.getModelo(prisma, {
+      where: { ...condition },
+    })
+  }
+  async getEstilo(condition: EstiloCondition) {
+    return await _generalRepo.getEstilo(prisma, {
+      where: { ...condition },
+    })
+  }
+  async getColor(condition: ColorCondition) {
+    return await _generalRepo.getColor(prisma, {
       where: { ...condition },
     })
   }

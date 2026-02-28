@@ -1,0 +1,45 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `proveedor` in model `cuenta_por_pagar`: The relation field `proveedor` on model `cuenta_por_pagar` is missing an opposite relation field on the model `proveedor`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:134[0m
+[1;94m   | [0m
+[1;94m133 | [0m
+[1;94m134 | [0m  [1;91mproveedor             proveedor @relation(fields: [id_proveedor], references: [id])[0m
+[1;94m135 | [0m  recepcion             recepcion @relation(fields: [id_recepcion], references: [id])
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `recepcion` in model `cuenta_por_pagar`: The relation field `recepcion` on model `cuenta_por_pagar` is missing an opposite relation field on the model `recepcion`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:135[0m
+[1;94m   | [0m
+[1;94m134 | [0m  proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
+[1;94m135 | [0m  [1;91mrecepcion             recepcion @relation(fields: [id_recepcion], references: [id])[0m
+[1;94m136 | [0m
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `proveedor` in model `recepcion`: The relation field `proveedor` on model `recepcion` is missing an opposite relation field on the model `proveedor`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:256[0m
+[1;94m   | [0m
+[1;94m255 | [0m
+[1;94m256 | [0m  [1;91mproveedor             proveedor @relation(fields: [id_proveedor], references: [id])[0m
+[1;94m257 | [0m  detalles              recepcion_detalle[]
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `cliente` in model `venta`: The relation field `cliente` on model `venta` is missing an opposite relation field on the model `cliente`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:407[0m
+[1;94m   | [0m
+[1;94m406 | [0m
+[1;94m407 | [0m  [1;91mcliente               cliente @relation(fields: [id_cliente], references: [id])[0m
+[1;94m408 | [0m  detalles              venta_detalle[]
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `venta` in model `pago_venta`: The relation field `venta` on model `pago_venta` is missing an opposite relation field on the model `venta`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:459[0m
+[1;94m   | [0m
+[1;94m458 | [0m
+[1;94m459 | [0m  [1;91mventa                 venta @relation(fields: [id_venta], references: [id])[0m
+[1;94m460 | [0m
+[1;94m   | [0m
+
+Validation Error Count: 5
+[Context: validate]
+
+Prisma CLI Version : 6.19.2

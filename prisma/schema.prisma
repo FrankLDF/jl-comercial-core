@@ -99,6 +99,57 @@ model rol {
   usuarios rol_usuario[]
 }
 
+model marca {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  modelos               modelo[]
+  vehiculos             vehiculo[]
+}
+
+model modelo {
+  id                    Int        @id @default(autoincrement())
+  id_marca              Int
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  marca                 marca      @relation(fields: [id_marca], references: [id])
+  estilos               estilo[]
+  vehiculos             vehiculo[]
+}
+
+model estilo {
+  id                    Int        @id @default(autoincrement())
+  id_modelo             Int
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  modelo                modelo     @relation(fields: [id_modelo], references: [id])
+  vehiculos             vehiculo[]
+}
+
+model color {
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  estado                String
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+  vehiculos             vehiculo[]
+}
+
+
 model cliente {
   id Int @id @default(autoincrement())
   id_entidad Int @unique
@@ -108,7 +159,55 @@ model cliente {
   usuario_insercion     String
   fecha_actualizacion   DateTime?  @updatedAt
   usuario_actualizacion String?
+  ventas                venta[]
 }
+
+enum EstadoCuentaPorPagar {
+  PENDIENTE
+  PARCIAL
+  PAGADA
+  VENCIDA
+  ANULADA
+}
+
+model cuenta_por_pagar {
+  id                    Int @id @default(autoincrement())
+  id_proveedor          Int
+  id_recepcion          Int @unique
+
+  fecha_emision         DateTime @default(now())
+  fecha_vencimiento     DateTime?
+
+  monto_original        Decimal @db.Decimal(18,2)
+  saldo_pendiente       Decimal @db.Decimal(18,2)
+
+  estado_cxp            EstadoCuentaPorPagar @default(PENDIENTE)
+
+  proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
+  recepcion             recepcion @relation(fields: [id_recepcion], references: [id])
+
+  pagos                 pago_cuenta_por_pagar[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_cuenta_por_pagar {
+  id                    Int @id @default(autoincrement())
+  id_cuenta_por_pagar   Int
+
+  fecha_pago            DateTime @default(now())
+  monto_pagado          Decimal @db.Decimal(18,2)
+  metodo_pago           String?
+
+  cuenta_por_pagar      cuenta_por_pagar @relation(fields: [id_cuenta_por_pagar], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
 
 model entidad {
   id                   Int           @id @default(autoincrement())
@@ -176,6 +275,58 @@ model proveedor {
   usuario_insercion     String
   fecha_actualizacion   DateTime?  @updatedAt
   usuario_actualizacion String?
+  recepciones           recepcion[]
+  cuentas_por_pagar     cuenta_por_pagar[]
+}
+
+
+// TipoPago moved to venta.prisma
+
+enum EstadoRecepcion {
+  ABIERTA
+  CERRADA
+  ANULADA
+}
+
+model recepcion {
+  id                    Int      @id @default(autoincrement())
+  id_proveedor          Int
+
+  fecha                 DateTime @default(now())
+  tipo_pago             TipoPago
+
+  monto_total           Decimal  @db.Decimal(18,2)
+  inicial               Decimal? @db.Decimal(18,2)
+  saldo_pendiente       Decimal? @db.Decimal(18,2)
+
+  estado_recepcion      EstadoRecepcion @default(ABIERTA)
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
+  detalles              recepcion_detalle[]
+  cuenta_por_pagar      cuenta_por_pagar?
+}
+
+model recepcion_detalle {
+  id                    Int @id @default(autoincrement())
+  id_recepcion          Int
+  id_vehiculo_ingreso   Int @unique
+
+  costo_unitario        Decimal  @db.Decimal(18,2)
+  otros_costos          Decimal? @db.Decimal(18,2)
+  costo_total           Decimal  @db.Decimal(18,2)
+
+  recepcion             recepcion @relation(fields: [id_recepcion], references: [id])
+  vehiculo_ingreso      vehiculo_ingreso @relation(fields: [id_vehiculo_ingreso], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
 }
 
 
@@ -209,3 +360,183 @@ model usuario {
   personal  personal    @relation(fields: [id_personal], references: [id])
   rol     rol_usuario[]
 }
+
+enum CondicionVehiculo {
+  NUEVO
+  USADO
+}
+
+enum EstadoIngreso {
+  RECEPCION_ABIERTA
+  EN_STOCK
+  VENDIDO
+}
+
+model vehiculo {
+  id                    Int      @id @default(autoincrement())
+
+  chasis                String   @unique
+  numero_maquina          String?   @unique
+  placa                 String?  @unique
+
+  id_marca              Int?
+  id_modelo             Int?
+  id_estilo             Int?
+  id_color              Int?
+  anio                  Int
+  cilindraje            Int?
+
+  marca_ref             marca?   @relation(fields: [id_marca], references: [id])
+  modelo_ref            modelo?  @relation(fields: [id_modelo], references: [id])
+  estilo_ref            estilo?  @relation(fields: [id_estilo], references: [id])
+  color_ref             color?   @relation(fields: [id_color], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  ingresos              vehiculo_ingreso[]
+}
+
+model vehiculo_ingreso {
+  id                    Int      @id @default(autoincrement())
+  id_vehiculo           Int
+
+  condicion             CondicionVehiculo
+  costo_compra          Decimal  @db.Decimal(18,2)
+  precio_venta_estimado Decimal  @db.Decimal(18,2)
+
+  estado_ingreso        EstadoIngreso @default(EN_STOCK)
+  fecha_ingreso         DateTime @default(now())
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  vehiculo              vehiculo @relation(fields: [id_vehiculo], references: [id])
+
+  recepcion_detalle     recepcion_detalle?
+  venta_detalle         venta_detalle?
+}
+
+
+
+enum EstadoVenta {
+  ACTIVA
+  PAGADA
+  CANCELADA
+}
+
+enum EstadoCuota {
+  PENDIENTE
+  PAGADA
+  VENCIDA
+  ANULADA
+}
+
+enum TipoPago {
+  CONTADO
+  CREDITO
+}
+
+model venta {
+  id                    Int @id @default(autoincrement())
+  id_cliente            Int
+
+  fecha                 DateTime @default(now())
+  tipo_pago             TipoPago
+
+  monto_total           Decimal  @db.Decimal(18,2)
+  inicial               Decimal? @db.Decimal(18,2)
+  saldo_pendiente       Decimal? @db.Decimal(18,2)
+
+  tasa_interes          Decimal? @db.Decimal(5,2)
+  cantidad_cuotas       Int?
+
+  estado_venta          EstadoVenta @default(ACTIVA)
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime? @updatedAt
+  usuario_actualizacion String?
+
+  cliente               cliente @relation(fields: [id_cliente], references: [id])
+  detalles              venta_detalle[]
+  cuotas                venta_cuota[]
+  pagos                 pago_venta[]
+}
+
+model venta_detalle {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+  id_vehiculo_ingreso   Int @unique
+
+  precio_venta          Decimal @db.Decimal(18,2)
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+  vehiculo_ingreso      vehiculo_ingreso @relation(fields: [id_vehiculo_ingreso], references: [id])
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model venta_cuota {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+
+  numero_cuota          Int
+  fecha_vencimiento     DateTime
+
+  /// Monto original de la cuota
+  monto                 Decimal @db.Decimal(18,2)
+
+  /// Total pagado hasta ahora
+  monto_pagado          Decimal @db.Decimal(18,2) @default(0)
+
+  estado_cuota          EstadoCuota @default(PENDIENTE)
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+
+  aplicaciones          pago_cuota_aplicacion[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_venta {
+  id                    Int @id @default(autoincrement())
+  id_venta              Int
+
+  fecha_pago            DateTime @default(now())
+  monto_total           Decimal @db.Decimal(18,2)
+  metodo_pago           String?
+
+  venta                 venta @relation(fields: [id_venta], references: [id])
+
+  aplicaciones          pago_cuota_aplicacion[]
+
+  estado                String
+  fecha_insercion       DateTime @default(now())
+  usuario_insercion     String
+}
+
+model pago_cuota_aplicacion {
+  id                Int @id @default(autoincrement())
+
+  id_pago_venta     Int
+  id_venta_cuota    Int
+
+  /// Monto de este pago aplicado a esta cuota específica
+  monto_aplicado    Decimal @db.Decimal(18,2)
+
+  pago_venta        pago_venta @relation(fields: [id_pago_venta], references: [id])
+  venta_cuota       venta_cuota @relation(fields: [id_venta_cuota], references: [id])
+}
+

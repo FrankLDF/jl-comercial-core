@@ -25,3 +25,24 @@ coreRoute.get(
   authMiddleware as never,
   _coreController.getSector as never
 )
+
+coreRoute.get(
+  '/marca',
+  authMiddleware as never,
+  _coreController.getMarca as never
+)
+coreRoute.get(
+  '/modelo',
+  authMiddleware as never,
+  _coreController.getModelo as never
+)
+coreRoute.get(
+  '/estilo',
+  authMiddleware as never,
+  _coreController.getEstilo as never
+)
+coreRoute.get(
+  '/color',
+  authMiddleware as never,
+  _coreController.getColor as never
+)

@@ -1,7 +1,4 @@
-enum TipoPago {
-  CONTADO
-  CREDITO
-}
+// TipoPago moved to venta.prisma
 
 enum EstadoRecepcion {
   ABIERTA
@@ -30,6 +27,7 @@ model recepcion {
 
   proveedor             proveedor @relation(fields: [id_proveedor], references: [id])
   detalles              recepcion_detalle[]
+  cuenta_por_pagar      cuenta_por_pagar?
 }
 
 model recepcion_detalle {

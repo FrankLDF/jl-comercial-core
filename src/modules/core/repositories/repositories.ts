@@ -39,8 +39,32 @@ export class GeneralRepository {
   async getSector(
     tx: TxClient,
     condition: Prisma.ciudadFindManyArgs,
-  ): Promise<ciudad[] | Error> {
+  ): Promise<any> {
     return await tx.ciudad.findMany(condition)
+  }
+  async getMarca(
+    tx: TxClient,
+    condition: Prisma.marcaFindManyArgs,
+  ): Promise<any> {
+    return await tx.marca.findMany(condition)
+  }
+  async getModelo(
+    tx: TxClient,
+    condition: Prisma.modeloFindManyArgs,
+  ): Promise<any> {
+    return await tx.modelo.findMany(condition)
+  }
+  async getEstilo(
+    tx: TxClient,
+    condition: Prisma.estiloFindManyArgs,
+  ): Promise<any> {
+    return await tx.estilo.findMany(condition)
+  }
+  async getColor(
+    tx: TxClient,
+    condition: Prisma.colorFindManyArgs,
+  ): Promise<any> {
+    return await tx.color.findMany(condition)
   }
   async getEntity(
     tx: TxClient,

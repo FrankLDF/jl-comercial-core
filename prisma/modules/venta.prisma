@@ -4,6 +4,13 @@ enum EstadoVenta {
   CANCELADA
 }
 
+enum EstadoCuota {
+  PENDIENTE
+  PAGADA
+  VENCIDA
+  ANULADA
+}
+
 enum TipoPago {
   CONTADO
   CREDITO
@@ -34,6 +41,7 @@ model venta {
   cliente               cliente @relation(fields: [id_cliente], references: [id])
   detalles              venta_detalle[]
   cuotas                venta_cuota[]
+  pagos                 pago_venta[]
 }
 
 model venta_detalle {

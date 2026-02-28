@@ -28,4 +28,32 @@ export class generalController {
     })
     return res.status(200).json({ sector })
   }
+  getMarca = async (req: Request, res: Response) => {
+    const brands = await _generalService.getMarca({
+      estado: EstatusGeneral.ACTIVO,
+    })
+    return res.status(200).json({ brands })
+  }
+  getModelo = async (req: Request, res: Response) => {
+    const { id_marca } = req.query
+    const models = await _generalService.getModelo({
+      estado: EstatusGeneral.ACTIVO,
+      id_marca: id_marca ? Number(id_marca) : undefined,
+    })
+    return res.status(200).json({ models })
+  }
+  getEstilo = async (req: Request, res: Response) => {
+    const { id_modelo } = req.query
+    const styles = await _generalService.getEstilo({
+      estado: EstatusGeneral.ACTIVO,
+      id_modelo: id_modelo ? Number(id_modelo) : undefined,
+    })
+    return res.status(200).json({ styles })
+  }
+  getColor = async (req: Request, res: Response) => {
+    const colors = await _generalService.getColor({
+      estado: EstatusGeneral.ACTIVO,
+    })
+    return res.status(200).json({ colors })
+  }
 }

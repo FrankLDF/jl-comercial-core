@@ -7,4 +7,6 @@ model proveedor {
   usuario_insercion     String
   fecha_actualizacion   DateTime?  @updatedAt
   usuario_actualizacion String?
+  recepciones           recepcion[]
+  cuentas_por_pagar     cuenta_por_pagar[]
 }

@@ -4,6 +4,7 @@ enum CondicionVehiculo {
 }
 
 enum EstadoIngreso {
+  RECEPCION_ABIERTA
   EN_STOCK
   VENDIDO
 }
@@ -15,12 +16,17 @@ model vehiculo {
   numero_maquina          String?   @unique
   placa                 String?  @unique
 
-  marca                 String
-  modelo                String
-  estilo                String
+  id_marca              Int?
+  id_modelo             Int?
+  id_estilo             Int?
+  id_color              Int?
   anio                  Int
-  color                 String?
   cilindraje            Int?
+
+  marca_ref             marca?   @relation(fields: [id_marca], references: [id])
+  modelo_ref            modelo?  @relation(fields: [id_modelo], references: [id])
+  estilo_ref            estilo?  @relation(fields: [id_estilo], references: [id])
+  color_ref             color?   @relation(fields: [id_color], references: [id])
 
   estado                String
   fecha_insercion       DateTime @default(now())

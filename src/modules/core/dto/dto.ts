@@ -56,3 +56,25 @@ export interface EntidadDto {
   fecha_nacimiento?: Date
   estado: string
 }
+export interface MarcaCondition {
+  id?: number
+  nombre?: string
+  estado?: string
+}
+export interface ModeloCondition {
+  id?: number
+  id_marca?: number
+  nombre?: string
+  estado?: string
+}
+export interface EstiloCondition {
+  id?: number
+  id_modelo?: number
+  nombre?: string
+  estado?: string
+}
+export interface ColorCondition {
+  id?: number
+  nombre?: string
+  estado?: string
+}
