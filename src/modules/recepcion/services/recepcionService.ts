@@ -1,6 +1,7 @@
 import prisma from '../../../config/prismaConnect.js';
 import { CreateRecepcionDto } from '../validator/schema.js';
 import { Decimal } from '@prisma/client/runtime/library';
+import { AppError } from '../../../common/errors/AppError.js';
 
 export class RecepcionService {
   async create(payload: CreateRecepcionDto) {
@@ -11,7 +12,7 @@ export class RecepcionService {
           where: { id: payload.id },
           include: { detalles: true }
         });
-        if (!existe) throw new Error('La recepción no existe');
+        if (!existe) throw new AppError('La recepción no existe en el sistema.', 404);
 
         if (payload.estado_recepcion === 'ANULADA') {
           for (const det of existe.detalles) {
@@ -38,17 +39,21 @@ export class RecepcionService {
       // 2. Si es una actualización de datos, limpiar detalles previos ANTES de validar stock
       if (payload.id && payload.detalles) {
         const existe = await tx.recepcion.findUnique({ where: { id: payload.id } });
-        if (!existe) throw new Error('La recepción no existe');
-        if (existe.estado_recepcion !== 'ABIERTA') throw new Error('Solo se pueden editar recepciones ABIERTAS');
+        if (!existe) throw new AppError('La recepción que intenta actualizar no existe.', 404);
+        if (existe.estado_recepcion !== 'ABIERTA') throw new AppError('Solo se pueden editar recepciones que aún estén en estado ABIERTA.', 400);
 
         const detallesViejos = await tx.recepcion_detalle.findMany({ where: { id_recepcion: payload.id } });
-        for (const dv of detallesViejos) {
-            // Eliminamos el ingreso temporal para que no bloquee la validación de stock
-            await tx.vehiculo_ingreso.delete({ where: { id: dv.id_vehiculo_ingreso } });
-        }
+        const vehiculoIngresoIds = detallesViejos.map(dv => dv.id_vehiculo_ingreso);
+
+        // Primero eliminamos la relación para evitar error de constraint
         await tx.recepcion_detalle.deleteMany({ where: { id_recepcion: payload.id } });
+
+        // Luego eliminamos el ingreso del vehículo
+        for (const vid of vehiculoIngresoIds) {
+          await tx.vehiculo_ingreso.delete({ where: { id: vid } });
+        }
       } else if (!payload.id && !payload.usuario_insercion) {
-        throw new Error('El usuario (usuario_insercion) es obligatorio para crear una recepción.');
+        throw new AppError('El usuario que realiza la operación es obligatorio para crear una recepción.', 400);
       }
 
       // 3. Procesar Detalles y Vehículos
@@ -72,8 +77,10 @@ export class RecepcionService {
           });
 
           if (vehiculoExistente && vehiculoExistente.ingresos.length > 0) {
-            throw new Error(`El vehículo con chasis ${d.chasis} ya se encuentra reservado o en STOCK.`);
+            throw new AppError(`El vehículo con chasis ${d.chasis} ya se encuentra registrado con stock activo o en otra recepción abierta.`, 400);
           }
+          
+          // ... rest of the code remains the same but using AppError where needed ...
 
           // A. Upsert del Vehículo
           const vehiculo = await tx.vehiculo.upsert({
@@ -169,9 +176,9 @@ export class RecepcionService {
         include: { detalles: true }
       });
 
-      if (!recepcion) throw new Error('Recepción no encontrada');
-      if (recepcion.estado_recepcion !== 'ABIERTA') throw new Error('La recepción ya no está abierta');
-      if (recepcion.detalles.length === 0) throw new Error('No se puede cerrar una recepción sin detalles');
+      if (!recepcion) throw new AppError('La recepción especificada no existe.', 404);
+      if (recepcion.estado_recepcion !== 'ABIERTA') throw new AppError('Esta recepción ya ha sido cerrada o anulada previamente.', 400);
+      if (recepcion.detalles.length === 0) throw new AppError('No se puede cerrar una recepción que no tiene vehículos registrados.', 400);
 
       // 2. Actualizar estado de la recepción
       await tx.recepcion.update({
