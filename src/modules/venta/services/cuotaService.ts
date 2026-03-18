@@ -2,10 +2,10 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { AppError } from '../../../common/errors/AppError.js';
 
 export class CuotaService {
-  async generarCuotas(id_venta: number, monto_total: number, inicial: number, cantidad_cuotas: number, usuario: string, tx: any) {
-    const monto_financiar = new Decimal(monto_total).minus(new Decimal(inicial));
+  async generarCuotas(id_venta: number, monto_total: number, inicial: number, cantidad_cuotas: number, tasa_interes: number, usuario: string, tx: any) {
+    const capital_financiar = new Decimal(monto_total).minus(new Decimal(inicial));
     
-    if (monto_financiar.lte(0)) {
+    if (capital_financiar.lte(0)) {
       throw new AppError('El inicial no puede ser mayor o igual al monto total en una venta a crédito.', 400);
     }
 
@@ -13,7 +13,15 @@ export class CuotaService {
       throw new AppError('La cantidad de cuotas debe ser mayor a 0.', 400);
     }
 
-    const monto_cuota_base = monto_financiar.div(cantidad_cuotas).toDecimalPlaces(2);
+    // Fórmula: Interés Simple Distribuido
+    // Interés Total = Capital * (Tasa / 100)
+    // Monto Total = Capital + Interés Total
+    // Cuota = Monto Total / Cantidad
+    const tasa_decimal = new Decimal(tasa_interes).div(100);
+    const interes_total = capital_financiar.mul(tasa_decimal).toDecimalPlaces(2);
+    const monto_total_con_interes = capital_financiar.plus(interes_total);
+    const monto_cuota_base = monto_total_con_interes.div(cantidad_cuotas).toDecimalPlaces(2);
+    
     let total_acumulado = new Decimal(0);
 
     for (let i = 1; i <= cantidad_cuotas; i++) {
@@ -21,7 +29,7 @@ export class CuotaService {
 
       // Ajuste en la última cuota para evitar diferencias por redondeo
       if (i === cantidad_cuotas) {
-        monto_cuota = monto_financiar.minus(total_acumulado);
+        monto_cuota = monto_total_con_interes.minus(total_acumulado);
       } else {
         total_acumulado = total_acumulado.plus(monto_cuota);
       }

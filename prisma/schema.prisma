@@ -279,9 +279,6 @@ model proveedor {
   cuentas_por_pagar     cuenta_por_pagar[]
 }
 
-
-// TipoPago moved to venta.prisma
-
 enum EstadoRecepcion {
   ABIERTA
   CERRADA
@@ -315,7 +312,7 @@ model recepcion {
 model recepcion_detalle {
   id                    Int @id @default(autoincrement())
   id_recepcion          Int
-  id_vehiculo_ingreso   Int @unique
+  id_vehiculo_ingreso   Int
 
   costo_unitario        Decimal  @db.Decimal(18,2)
   otros_costos          Decimal? @db.Decimal(18,2)
@@ -329,6 +326,53 @@ model recepcion_detalle {
   usuario_insercion     String
 }
 
+model cargo_tipo {
+  id               Int      @id @default(autoincrement())
+  nombre           String
+  monto_sugerido   Decimal  @db.Decimal(18,2)
+  es_vinculante    Boolean  @default(false)
+  
+  estado           String   @default("A")
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+
+  venta_cargos     venta_cargo[]
+}
+
+model venta_cargo {
+  id              Int      @id @default(autoincrement())
+  id_venta        Int
+  id_cargo_tipo   Int
+  
+  monto           Decimal  @db.Decimal(18,2)
+  monto_pagado    Decimal  @db.Decimal(18,2) @default(0)
+  saldo_pendiente Decimal  @db.Decimal(18,2)
+  estado_cargo    String   @default("PENDIENTE") // PENDIENTE, PARCIAL, PAGADO
+  
+  venta           venta      @relation(fields: [id_venta], references: [id])
+  cargo_tipo      cargo_tipo @relation(fields: [id_cargo_tipo], references: [id])
+  pago_aplicaciones pago_cargo_aplicacion[]
+
+  estado                String     @default("A")
+  fecha_insercion       DateTime   @default(now())
+  usuario_insercion     String
+  fecha_actualizacion   DateTime?  @updatedAt
+  usuario_actualizacion String?
+}
+
+model pago_cargo_aplicacion {
+  id                Int @id @default(autoincrement())
+  id_pago_venta     Int
+  id_venta_cargo    Int
+
+  monto_aplicado    Decimal @db.Decimal(18,2)
+  descripcion       String?
+
+  pago_venta        pago_venta @relation(fields: [id_pago_venta], references: [id])
+  venta_cargo       venta_cargo @relation(fields: [id_venta_cargo], references: [id])
+}
 
 model rol_usuario {
   id_usuario Int
@@ -419,10 +463,9 @@ model vehiculo_ingreso {
 
   vehiculo              vehiculo @relation(fields: [id_vehiculo], references: [id])
 
-  recepcion_detalle     recepcion_detalle?
-  venta_detalle         venta_detalle?
+  recepcion_detalle     recepcion_detalle[]
+  venta_detalle         venta_detalle[]
 }
-
 
 
 enum EstadoVenta {
@@ -469,12 +512,13 @@ model venta {
   detalles              venta_detalle[]
   cuotas                venta_cuota[]
   pagos                 pago_venta[]
+  cargos                venta_cargo[]
 }
 
 model venta_detalle {
   id                    Int @id @default(autoincrement())
   id_venta              Int
-  id_vehiculo_ingreso   Int @unique
+  id_vehiculo_ingreso   Int
 
   precio_venta          Decimal @db.Decimal(18,2)
 
@@ -493,11 +537,16 @@ model venta_cuota {
   numero_cuota          Int
   fecha_vencimiento     DateTime
 
-  /// Monto original de la cuota
+  /// Monto original de la cuota (Capital + Interés)
   monto                 Decimal @db.Decimal(18,2)
 
-  /// Total pagado hasta ahora
+  /// Total pagado hasta ahora (incluye lo aplicado a mora si aplica)
   monto_pagado          Decimal @db.Decimal(18,2) @default(0)
+
+  // Tracking de Mora
+  mora_calculada        Decimal @db.Decimal(18,2) @default(0)
+  mora_pagada           Decimal @db.Decimal(18,2) @default(0)
+  mora_condonada        Decimal @db.Decimal(18,2) @default(0)
 
   estado_cuota          EstadoCuota @default(PENDIENTE)
 
@@ -517,10 +566,12 @@ model pago_venta {
   fecha_pago            DateTime @default(now())
   monto_total           Decimal @db.Decimal(18,2)
   metodo_pago           String?
+  descripcion           String?
 
   venta                 venta @relation(fields: [id_venta], references: [id])
 
-  aplicaciones          pago_cuota_aplicacion[]
+  cuota_aplicaciones    pago_cuota_aplicacion[]
+  cargo_aplicaciones    pago_cargo_aplicacion[]
 
   estado                String
   fecha_insercion       DateTime @default(now())
@@ -535,8 +586,12 @@ model pago_cuota_aplicacion {
 
   /// Monto de este pago aplicado a esta cuota específica
   monto_aplicado    Decimal @db.Decimal(18,2)
+  
+  /// Cuánto de este pago se usó para la mora de la cuota
+  monto_mora        Decimal @db.Decimal(18,2) @default(0)
+  
+  descripcion       String?
 
   pago_venta        pago_venta @relation(fields: [id_pago_venta], references: [id])
   venta_cuota       venta_cuota @relation(fields: [id_venta_cuota], references: [id])
 }
-

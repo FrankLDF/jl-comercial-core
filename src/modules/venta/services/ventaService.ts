@@ -26,14 +26,23 @@ export class VentaService {
           throw new AppError('El vehículo ya fue vendido y no está disponible.', 400);
         }
 
-        if (vehiculoIngreso.venta_detalle) {
-          throw new AppError('Este vehículo ya está asociado a una venta.', 400);
+        const tieneVentaActiva = (vehiculoIngreso.venta_detalle as any[])?.some((vd: any) => vd.estado === 'A');
+        if (tieneVentaActiva) {
+          throw new AppError('Este vehículo ya está asociado a una venta activa.', 400);
         }
       }
 
-      // 2. Calcular Monto Total
+      // 2. Calcular Montos e Interés
       const montoTotal = payload.detalles.reduce((sum, d) => sum + d.precio_venta, 0);
-      const saldoPendiente = payload.tipo_pago === 'CONTADO' ? 0 : montoTotal - (payload.inicial || 0);
+      let saldoPendiente = new Decimal(0);
+      
+      if (payload.tipo_pago === 'CREDITO') {
+        const capital_financiar = new Decimal(montoTotal).minus(new Decimal(payload.inicial || 0));
+        const tasa_decimal = new Decimal(payload.tasa_interes || 0).div(100);
+        const interes_total = capital_financiar.mul(tasa_decimal).toDecimalPlaces(2);
+        saldoPendiente = capital_financiar.plus(interes_total);
+      }
+
       const estadoVenta = payload.tipo_pago === 'CONTADO' ? 'PAGADA' : 'ACTIVA';
 
       // 3. Crear Registro de Venta
@@ -44,7 +53,7 @@ export class VentaService {
           monto_total: new Decimal(montoTotal),
           inicial: new Decimal(payload.inicial || 0),
           saldo_pendiente: new Decimal(saldoPendiente),
-          tasa_interes: payload.tasa_interes ? new Decimal(payload.tasa_interes) : null,
+          tasa_interes: new Decimal(payload.tasa_interes || 0),
           cantidad_cuotas: payload.cantidad_cuotas,
           estado_venta: estadoVenta,
           estado: 'A',
@@ -56,9 +65,20 @@ export class VentaService {
               estado: 'A',
               usuario_insercion: usuario
             }))
+          },
+          cargos: {
+            create: (payload.cargos || []).map(c => ({
+              id_cargo_tipo: c.id_cargo_tipo,
+              monto: new Decimal(c.monto),
+              monto_pagado: 0,
+              saldo_pendiente: new Decimal(c.monto),
+              estado_cargo: 'PENDIENTE',
+              estado: 'A',
+              usuario_insercion: usuario
+            }))
           }
         },
-        include: { detalles: true }
+        include: { detalles: true, cargos: true }
       });
 
       // 4. Actualizar Estado de Vehículos a VENDIDO
@@ -74,41 +94,64 @@ export class VentaService {
 
       // 5. Lógica de Pago Inicial / Registro de Pagos
       const montoInicialDecimal = new Decimal(payload.inicial || 0);
-      
+      const notaPago = payload.comentario_pago || (payload.tipo_pago === 'CONTADO' ? 'Pago Total (Contado)' : 'Pago Inicial');
+
       if (payload.tipo_pago === 'CONTADO') {
-        // En venta al contado, el pago es por el total. 
-        // Si el inicial viene vacío, usamos montoTotal. Si viene algo, usamos eso (debería ser el total).
         const montoPagoContado = montoInicialDecimal.gt(0) ? montoInicialDecimal : new Decimal(montoTotal);
         
-        await t.pago_venta.create({
+        const pago = await t.pago_venta.create({
           data: {
             id_venta: venta.id,
             monto_total: montoPagoContado,
             metodo_pago: 'EFECTIVO',
+            descripcion: notaPago,
             estado: 'A',
             usuario_insercion: usuario
           }
         });
+
+        // Para ventas al contado, marcamos todos los cargos como PAGADOS
+        for (const cargo of (venta.cargos || [])) {
+            await t.venta_cargo.update({
+                where: { id: cargo.id },
+                data: {
+                    monto_pagado: cargo.monto,
+                    saldo_pendiente: 0,
+                    estado_cargo: 'PAGADO',
+                    usuario_actualizacion: usuario
+                }
+            });
+
+            await t.pago_cargo_aplicacion.create({
+                data: {
+                    id_pago_venta: pago.id,
+                    id_venta_cargo: cargo.id,
+                    monto_aplicado: cargo.monto,
+                    descripcion: 'Pago automático (Venta al Contado)'
+                }
+            });
+        }
       } else {
-        // En venta a crédito, si hay un inicial, lo registramos como el primer pago.
         if (montoInicialDecimal.gt(0)) {
           await t.pago_venta.create({
             data: {
               id_venta: venta.id,
               monto_total: montoInicialDecimal,
               metodo_pago: 'EFECTIVO',
+              descripcion: notaPago,
               estado: 'A',
               usuario_insercion: usuario
             }
           });
         }
 
-        // Generar cuotas para el resto del monto
+        // Generar cuotas para el resto del monto con interés
         await this.cuotaService.generarCuotas(
           venta.id, 
           montoTotal, 
           payload.inicial || 0, 
-          payload.cantidad_cuotas!, 
+          payload.cantidad_cuotas!,
+          payload.tasa_interes || 0,
           usuario, 
           t
         );
@@ -131,12 +174,19 @@ export class VentaService {
       if (venta.estado_venta === 'CANCELADA') throw new AppError('La venta ya está cancelada.', 400);
 
       // 1. Actualizar estado de la venta
+      // 1. Actualizar estado de la venta y sus detalles
       await t.venta.update({
         where: { id },
         data: {
           estado_venta: 'CANCELADA',
+          estado: 'I',
           usuario_actualizacion: usuario
         }
+      });
+
+      await t.venta_detalle.updateMany({
+        where: { id_venta: id },
+        data: { estado: 'I' }
       });
 
       // 2. Devolver vehículos al inventario (EN_STOCK)
@@ -150,11 +200,25 @@ export class VentaService {
         });
       }
 
+      // 3. Anular cuotas
       await t.venta_cuota.updateMany({
-        where: { id_venta: id, estado_cuota: 'PENDIENTE' },
+        where: { id_venta: id },
         data: {
-          estado_cuota: 'ANULADA'
+          estado_cuota: 'ANULADA',
+          estado: 'I'
         }
+      });
+
+      // 4. Inactivar pagos
+      await t.pago_venta.updateMany({
+        where: { id_venta: id },
+        data: { estado: 'I' }
+      });
+
+      // 5. Inactivar cargos
+      await t.venta_cargo.updateMany({
+        where: { id_venta: id },
+        data: { estado: 'I' }
       });
 
       return { message: 'Venta cancelada exitosamente y vehículos devueltos al stock.' };
@@ -170,7 +234,14 @@ export class VentaService {
         cliente: { include: { entidad: true } },
         detalles: { include: { vehiculo_ingreso: { include: { vehiculo: true } } } },
         cuotas: { where: { estado: 'A' }, orderBy: { numero_cuota: 'asc' } },
-        pagos: { include: { aplicaciones: true } }
+        cargos: { include: { cargo_tipo: true } },
+        pagos: { 
+          include: { 
+            cuota_aplicaciones: { include: { venta_cuota: true } },
+            cargo_aplicaciones: { include: { venta_cargo: { include: { cargo_tipo: true } } } }
+          },
+          orderBy: { fecha_pago: 'desc' }
+        }
       }
     });
   }
@@ -179,7 +250,8 @@ export class VentaService {
     return prisma.venta.findMany({
       where: { estado: 'A' },
       include: {
-        cliente: { include: { entidad: true } }
+        cliente: { include: { entidad: true } },
+        cargos: { include: { cargo_tipo: true } }
       },
       orderBy: { fecha: 'desc' }
     });
