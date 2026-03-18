@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .details { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Recibo de Pago</h1>
+    </div>
+    <div class="details">
+        <p><strong>ID de Pago:</strong> {{payment.id}}</p>
+        <p><strong>Fecha:</strong> {{payment.fecha_pago}}</p>
+        <p><strong>Monto:</strong> {{payment.monto_total}}</p>
+        <p><strong>Método de Pago:</strong> {{payment.metodo_pago}}</p>
+    </div>
+    <div class="customer">
+        <p><strong>Cliente:</strong> {{cliente.nombres}} {{cliente.apellidos}}</p>
+    </div>
+</body>
+</html>

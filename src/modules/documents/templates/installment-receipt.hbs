@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: Letter;
+            margin: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 5.5in;
+            border: 1px solid #ddd;
+            padding: 25px;
+            box-sizing: border-box;
+            background-color: white;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo {
+            width: 140px;
+            height: auto;
+        }
+        .company-info {
+            font-size: 11px;
+            color: #333;
+            line-height: 1.3;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 2px;
+        }
+        .receipt-no {
+            font-size: 14px;
+            color: #444;
+            text-align: right;
+        }
+        .receipt-no span {
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 22px;
+        }
+        .document-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px 0 15px 0;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 3px;
+            width: 100%;
+            text-transform: uppercase;
+        }
+        
+        /* Grid Layout for Client Info */
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 30px;
+            margin-bottom: 15px;
+        }
+        
+        .field-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .field-row.full-width {
+            grid-column: span 2;
+        }
+        
+        .label {
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+        }
+        .value {
+            border-bottom: 1px dotted #ccc;
+            flex-grow: 1;
+            padding-bottom: 1px;
+            min-height: 1.2em;
+        }
+
+        .payment-section {
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1a237e;
+        }
+
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+        .firma-box {
+            text-align: center;
+            width: 280px;
+        }
+        .line {
+            border-top: 1px solid #333;
+            margin-bottom: 5px;
+        }
+        .firma-label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #555;
+        }
+        .cliente-nombre-firma {
+            font-size: 13px;
+            margin-top: 2px;
+            color: #000;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 70px;
+            color: rgba(26, 35, 126, 0.04);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="watermark">{{companyInfo.name}}</div>
+        
+        <div class="header">
+            <div class="logo-section">
+                <img src="{{#if logoBase64}}{{logoBase64}}{{else}}{{assetsPath}}/logo_documentos.png{{/if}}" alt="Logo" class="logo">
+                <div class="company-info">
+                    <div class="company-name">{{companyInfo.name}}</div>
+                    <div>{{companyInfo.address}}</div>
+                    <div>Tel: {{companyInfo.phone}}</div>
+                </div>
+            </div>
+            <div class="receipt-no">
+                No. <span>{{padId cuota.id}}</span>
+            </div>
+        </div>
+
+        <div class="document-title">RECIBO DE CUOTA</div>
+
+        <div class="info-section">
+            <div class="field-row full-width">
+                <span class="label">Cliente:</span>
+                <span class="value">{{cliente.nombres}} {{cliente.apellidos}}</span>
+            </div>
+            
+            <div class="field-row">
+                <span class="label">{{cliente.tipo_documento.nombre}}:</span>
+                <span class="value">{{cliente.documento_ident}}</span>
+            </div>
+            
+            <div class="field-row">
+                <span class="label">Teléfono:</span>
+                <span class="value">{{cliente.telefono}}</span>
+            </div>
+            
+            <div class="field-row full-width">
+                <span class="label">Dirección:</span>
+                <span class="value">{{cliente.desc_direccion}}</span>
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <div class="info-section" style="margin-bottom: 0;">
+                <div class="field-row">
+                    <span class="label">Cuota No.:</span>
+                    <span class="value">{{cuota.numero_cuota}} / {{totalCuotas}}</span>
+                </div>
+                <div class="field-row">
+                    <span class="label">Fecha de Pago:</span>
+                    <span class="value">{{formatDate cuota.fecha_vencimiento}}</span>
+                </div>
+                <div class="field-row full-width" style="margin-top: 5px;">
+                    <span class="label">Monto:</span>
+                    <span class="value" style="font-size: 13px; font-style: italic;">{{numberToWords cuota.monto}} (<span class="value" style="font-weight: bold;">{{formatCurrency cuota.monto}}</span>)</span>
+                </div>
+            </div>
+        </div>
+<br>
+        <div class="footer">
+            <div class="firma-box">
+                <div class="line"></div>
+                <div class="firma-label">RECIBIDO POR</div>
+                <div class="cliente-nombre-firma">{{cliente.nombres}} {{cliente.apellidos}}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

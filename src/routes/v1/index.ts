@@ -7,6 +7,7 @@ import { proveedorRoute } from '../../modules/proveedor/routes/proveedorRoute.js
 import { recepcionRoute } from '../../modules/recepcion/routes/recepcionRoute.js'
 import { inventarioRoute } from '../../modules/inventario/routes/inventarioRoute.js'
 import ventaRoute from '../../modules/venta/routes/ventaRoutes.js'
+import documentRoute from '../../modules/documents/routes/document.routes.js'
 
 export const pathUser = '/user'
 export const pathCore = '/core'
@@ -16,6 +17,7 @@ export const pathProveedor = '/proveedor'
 export const pathRecepcion = '/recepcion'
 export const pathInventario = '/inventario'
 export const pathVenta = '/venta'
+export const pathDocuments = '/documents'
 
 const router = Router()
 router.use(pathUser, userRoute)
@@ -26,5 +28,6 @@ router.use(pathProveedor, proveedorRoute)
 router.use(pathRecepcion, recepcionRoute)
 router.use(pathInventario, inventarioRoute)
 router.use(pathVenta, ventaRoute)
+router.use(pathDocuments, documentRoute)
 
 export default router
